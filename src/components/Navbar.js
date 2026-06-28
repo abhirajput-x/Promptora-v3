@@ -362,5 +362,4 @@ const styles = {
     display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
   },
 };
-NAVEOF
-echo "done"
+
