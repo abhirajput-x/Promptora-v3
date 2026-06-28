@@ -64,7 +64,7 @@ export default function Tools() {
         setPrompt(text);
         setProgress(100);
       } else {
-        toast.error('Could not analyze image. Check your Gemini API key.');
+        toast.error('Error: ' + (err.message || JSON.stringify(err)));
       }
     } catch (err) {
       toast.error('Analysis failed. Check your API key.');
