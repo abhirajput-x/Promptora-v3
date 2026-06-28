@@ -38,7 +38,7 @@ export default function Tools() {
       const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        ``https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,${apiKey}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
