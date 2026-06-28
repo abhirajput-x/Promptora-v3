@@ -48,7 +48,7 @@ export default function Tools() {
         return;
       }
 
-      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=' + apiKey;
+      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
       const requestBody = {
         contents: [
           {
