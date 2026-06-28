@@ -75,7 +75,7 @@ export default function Tools() {
   };
 
   const handleCopy = async () => {
-    await yed.writeText(prompt);
+    await navigator.clipboard.writeText(prompt);
     setCopied(true);
     toast.success('Prompt copied!');
     setTimeout(() => setCopied(false), 2000);
