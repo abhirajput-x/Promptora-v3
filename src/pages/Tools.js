@@ -64,10 +64,10 @@ export default function Tools() {
         setPrompt(text);
         setProgress(100);
       } else {
-        toast.error('Error: ' + (err.message || JSON.stringify(err)));
+        
       }
     } catch (err) {
-      toast.error('Analysis failed. Check your API key.');
+      toast.error('Error: ' + (err.message || JSON.stringify(err)));
     } finally {
       clearInterval(interval);
       setLoading(false);
@@ -75,7 +75,7 @@ export default function Tools() {
   };
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(prompt);
+    await yed.writeText(prompt);
     setCopied(true);
     toast.success('Prompt copied!');
     setTimeout(() => setCopied(false), 2000);
