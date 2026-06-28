@@ -1,4 +1,3 @@
-cat > /mnt/user-data/outputs/Tools.js << 'EOF'
 import { useState, useRef } from 'react';
 import { Upload, Copy, Check, RefreshCw, Wand2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
