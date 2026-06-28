@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import toast from 'react-hot-toast';
 
 export default function PromptDetail({ prompt, onClose }) {
-  const { user } = useAuth();
+  
   const [copied, setCopied] = useState(false);
   const [liked, setLiked] = useState(prompt.user_liked || false);
   const [saved, setSaved] = useState(prompt.user_saved || false);
