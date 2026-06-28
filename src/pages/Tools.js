@@ -221,5 +221,4 @@ const styles = {
   promptText: { fontSize: 14, color: '#ccc', lineHeight: 1.7 },
   copyBtn: { width: '100%', justifyContent: 'center', borderRadius: 10, padding: '12px 20px' },
 };
-EOF
-echo "done"
+
