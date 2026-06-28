@@ -1,5 +1,6 @@
+cat > /mnt/user-data/outputs/Tools.js << 'EOF'
 import { useState, useRef } from 'react';
-import { Upload, Image, Copy, Check, RefreshCw, Wand2, X } from 'lucide-react';
+import { Upload, Copy, Check, RefreshCw, Wand2, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Tools() {
@@ -28,7 +29,6 @@ export default function Tools() {
     setLoading(true);
     setProgress(0);
 
-    // Fake progress animation
     const interval = setInterval(() => {
       setProgress(p => Math.min(p + 8, 90));
     }, 200);
@@ -36,35 +36,30 @@ export default function Tools() {
     try {
       const base64 = await toBase64(image);
       const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+      const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
 
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [
-                {
-                  inlineData: {
-                    mimeType: image.type,
-                    data: base64.split(',')[1],
-                  }
-                },
-                {
-                  text: `Analyze this image and generate a detailed AI art prompt that could recreate it. 
-                  Include: style, lighting, colors, composition, mood, subject details, camera settings if relevant.
-                  Format: A single detailed paragraph prompt, optimized for Midjourney or Stable Diffusion.
-                  Do not include any explanation, just the prompt text.`
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              {
+                inlineData: {
+                  mimeType: image.type,
+                  data: base64.split(',')[1],
                 }
-              ]
-            }]
-          }),
-        }
-      );
+              },
+              {
+                text: 'Analyze this image and generate a detailed AI art prompt that could recreate it. Include: style, lighting, colors, composition, mood, subject details, camera settings if relevant. Format: A single detailed paragraph prompt, optimized for Midjourney or Stable Diffusion. Do not include any explanation, just the prompt text.'
+              }
+            ]
+          }]
+        }),
+      });
 
       const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      const text = data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
 
       if (text) {
         setPrompt(text);
@@ -106,17 +101,16 @@ export default function Tools() {
       </div>
 
       <div style={styles.container}>
-        {/* Upload area */}
         {!preview ? (
           <div
             style={styles.dropzone}
             onDragOver={e => e.preventDefault()}
             onDrop={handleDrop}
-            onClick={() => fileRef.current?.click()}
+            onClick={() => fileRef.current && fileRef.current.click()}
           >
             <input ref={fileRef} type="file" accept="image/*" hidden
               onChange={e => handleFile(e.target.files[0])} />
-            <Upload size={32} color="#444" />
+            <Wand2 size={32} color="#444" />
             <p style={styles.dropText}>Drop image here or tap to upload</p>
             <p style={styles.dropSub}>PNG, JPG, WEBP supported</p>
           </div>
@@ -129,7 +123,6 @@ export default function Tools() {
           </div>
         )}
 
-        {/* Analyze button */}
         {preview && !prompt && (
           <button
             className="btn btn-primary"
@@ -138,36 +131,27 @@ export default function Tools() {
             disabled={loading}
           >
             {loading ? (
-              <>
-                <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2, borderColor: '#000', borderTopColor: '#00E5FF' }} />
-                Analyzing...
-              </>
+              <div className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
             ) : (
-              <>
-                <Wand2 size={16} />
-                Generate Prompt
-              </>
+              <Wand2 size={16} />
             )}
+            {loading ? 'Analyzing...' : 'Generate Prompt'}
           </button>
         )}
 
-        {/* Progress */}
         {loading && (
           <div style={styles.progressBar}>
-            <div style={{ ...styles.progressFill, width: `${progress}%` }} />
+            <div style={{ height: '100%', background: '#00E5FF', width: progress + '%', transition: 'width 0.3s ease', borderRadius: 2 }} />
           </div>
         )}
 
-        {/* Result */}
         {prompt && (
-          <div style={styles.result} className="fade-in">
+          <div style={styles.result}>
             <div style={styles.resultHeader}>
               <span style={styles.resultLabel}>Generated Prompt</span>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: 13 }} onClick={analyzeImage}>
-                  <RefreshCw size={14} />
-                </button>
-              </div>
+              <button className="btn btn-ghost" style={{ padding: '6px 10px', fontSize: 13 }} onClick={analyzeImage}>
+                <RefreshCw size={14} />
+              </button>
             </div>
             <p style={styles.promptText}>{prompt}</p>
             <button className="btn btn-primary" style={styles.copyBtn} onClick={handleCopy}>
@@ -182,9 +166,9 @@ export default function Tools() {
 }
 
 function toBase64(file) {
-  return new Promise((res, rej) => {
-    const reader = new FileReader();
-    reader.onload = () => res(reader.result);
+  return new Promise(function(res, rej) {
+    var reader = new FileReader();
+    reader.onload = function() { res(reader.result); };
     reader.onerror = rej;
     reader.readAsDataURL(file);
   });
@@ -214,8 +198,7 @@ const styles = {
   dropzone: {
     border: '2px dashed #222', borderRadius: 16, padding: '48px 20px',
     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10,
-    cursor: 'pointer', transition: 'all 0.2s',
-    background: '#0a0a0a',
+    cursor: 'pointer', transition: 'all 0.2s', background: '#0a0a0a',
   },
   dropText: { color: '#888', fontSize: 15, fontWeight: 500 },
   dropSub: { color: '#444', fontSize: 12 },
@@ -230,16 +213,14 @@ const styles = {
   },
   analyzeBtn: { width: '100%', justifyContent: 'center', padding: '13px 20px', fontSize: 15 },
   progressBar: { height: 3, background: '#111', borderRadius: 2, overflow: 'hidden' },
-  progressFill: { height: '100%', background: '#00E5FF', transition: 'width 0.3s ease' },
   result: {
     background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 16, padding: 16,
     display: 'flex', flexDirection: 'column', gap: 12,
   },
   resultHeader: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-  resultLabel: {
-    fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 14, color: '#00E5FF',
-  },
+  resultLabel: { fontFamily: "'Space Grotesk', sans-serif", fontWeight: 600, fontSize: 14, color: '#00E5FF' },
   promptText: { fontSize: 14, color: '#ccc', lineHeight: 1.7 },
   copyBtn: { width: '100%', justifyContent: 'center', borderRadius: 10, padding: '12px 20px' },
 };
-
+EOF
+echo "done"
