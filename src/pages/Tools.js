@@ -57,8 +57,8 @@ export default function Tools() {
           {
             parts: [
               {
-                inline_Data: {
-                  mime_Type: image.type,
+                inline_data: {
+                  mime_type: image.type,
                   data: base64Data
                 }
               },
