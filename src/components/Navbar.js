@@ -1,4 +1,3 @@
-cat > /home/claude/promptora/src/components/Navbar.js << 'NAVEOF'
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Compass, BookOpen, Wrench, Users, X, Menu, Zap, Image, Sparkles, ChevronDown, Wand2 } from 'lucide-react';
