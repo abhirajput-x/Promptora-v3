@@ -11,24 +11,24 @@ export default function Tools() {
   const [progress, setProgress] = useState(0);
   const fileRef = useRef();
 
-  const handleFile = (file) => {
+  const handleFile = function(file) {
     if (!file || !file.type.startsWith('image/')) return toast.error('Please upload an image');
     setImage(file);
     setPreview(URL.createObjectURL(file));
     setPrompt('');
   };
 
-  const handleDrop = (e) => {
+  const handleDrop = function(e) {
     e.preventDefault();
     handleFile(e.dataTransfer.files[0]);
   };
 
-  const analyzeImage = async () => {
+  const analyzeImage = async function() {
     if (!image) return;
     setLoading(true);
     setProgress(10);
 
-    const interval = setInterval(() => {
+    const interval = setInterval(function() {
       setProgress(function(p) { return Math.min(p + 5, 85); });
     }, 300);
 
@@ -45,17 +45,20 @@ export default function Tools() {
 
       if (!apiKey) {
         toast.error('Gemini API key missing!');
+        clearInterval(interval);
+        setLoading(false);
         return;
       }
 
       const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
+
       const requestBody = {
         contents: [
           {
             parts: [
               {
-                inline_data: {
-                  mime_type: image.type,
+                inlineData: {
+                  mimeType: image.type,
                   data: base64Data
                 }
               },
@@ -77,16 +80,18 @@ export default function Tools() {
 
       if (!response.ok) {
         toast.error('API Error: ' + (data.error ? data.error.message : 'Unknown error'));
+        clearInterval(interval);
+        setLoading(false);
         return;
       }
 
-      if (data.candidates && data.candidates.length > 0) {
+      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
         const text = data.candidates[0].content.parts[0].text;
         setPrompt(text);
         setProgress(100);
         toast.success('Prompt generated!');
       } else {
-        toast.error('No response from Gemini. Try again.');
+        toast.error('No response. Try again.');
       }
 
     } catch (error) {
@@ -97,14 +102,14 @@ export default function Tools() {
     }
   };
 
-  const handleCopy = async () => {
+  const handleCopy = async function() {
     await navigator.clipboard.writeText(prompt);
     setCopied(true);
     toast.success('Prompt copied!');
     setTimeout(function() { setCopied(false); }, 2000);
   };
 
-  const reset = () => {
+  const reset = function() {
     setImage(null);
     setPreview(null);
     setPrompt('');
@@ -146,11 +151,7 @@ export default function Tools() {
         )}
 
         {preview && !prompt && (
-          <button
-            style={styles.analyzeBtn}
-            onClick={analyzeImage}
-            disabled={loading}
-          >
+          <button style={styles.analyzeBtn} onClick={analyzeImage} disabled={loading}>
             {loading ? (
               <div style={styles.spinner} />
             ) : (
