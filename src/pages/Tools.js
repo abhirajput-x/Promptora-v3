@@ -41,7 +41,7 @@ export default function Tools() {
       });
 
       const base64Data = base64.split(',')[1];
-      const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
       if (!apiKey) {
         toast.error('Gemini API key missing!');
