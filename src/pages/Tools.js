@@ -34,60 +34,64 @@ export default function Tools() {
 
     try {
       const reader = new FileReader();
-      const base64 = await new Promise(function(resolve, reject) {
+      const base64Result = await new Promise(function(resolve, reject) {
         reader.onload = function() { resolve(reader.result); };
         reader.onerror = reject;
         reader.readAsDataURL(image);
       });
 
-      const base64Data = base64.split(',')[1];
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const base64Data = base64Result.split(',')[1];
+      const mediaType = image.type;
+      const apiKey = process.env.REACT_APP_CLAUDE_API_KEY;
 
       if (!apiKey) {
-        toast.error('Gemini API key missing!');
-        clearInterval(interval);
-        setLoading(false);
+        toast.error('Claude API key missing!');
         return;
       }
 
-      const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
-
-      const requestBody = {
-        contents: [
-          {
-            parts: [
-              {
-                inlinedata: {
-                  mimetype: image.type,
-                  data: base64Data
-                }
-              },
-              {
-                text: 'Analyze this image and write a detailed AI art prompt to recreate it. Include style, lighting, colors, mood, and subject details. Write only the prompt, nothing else.'
-              }
-            ]
-          }
-        ]
-      };
-
-      const response = await fetch(apiUrl, {
+      const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-opus-4-5',
+          max_tokens: 1024,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'image',
+                  source: {
+                    type: 'base64',
+                    media_type: mediaType,
+                    data: base64Data
+                  }
+                },
+                {
+                  type: 'text',
+                  text: 'Analyze this image and write a detailed AI art prompt to recreate it. Include style, lighting, colors, mood, composition, and subject details. Write only the prompt text, nothing else.'
+                }
+              ]
+            }
+          ]
+        })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        toast.error('API Error: ' + (data.error ? data.error.message : 'Unknown error'));
-        clearInterval(interval);
-        setLoading(false);
+        const errMsg = data.error ? data.error.message : 'Unknown error';
+        toast.error('Error: ' + errMsg);
         return;
       }
 
-      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
-        const text = data.candidates[0].content.parts[0].text;
-        setPrompt(text);
+      if (data.content && data.content[0] && data.content[0].text) {
+        setPrompt(data.content[0].text);
         setProgress(100);
         toast.success('Prompt generated!');
       } else {
@@ -152,11 +156,7 @@ export default function Tools() {
 
         {preview && !prompt && (
           <button style={styles.analyzeBtn} onClick={analyzeImage} disabled={loading}>
-            {loading ? (
-              <div style={styles.spinner} />
-            ) : (
-              <Wand2 size={16} color="#000" />
-            )}
+            {loading ? <div style={styles.spinner} /> : <Wand2 size={16} color="#000" />}
             <span>{loading ? 'Analyzing...' : 'Generate Prompt'}</span>
           </button>
         )}
@@ -190,11 +190,9 @@ export default function Tools() {
 const styles = {
   page: { minHeight: '100vh', paddingBottom: 80 },
   header: {
-    padding: '32px 20px 24px',
-    textAlign: 'center',
+    padding: '32px 20px 24px', textAlign: 'center',
     background: 'radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.06) 0%, transparent 70%)',
-    borderBottom: '1px solid #111',
-    marginBottom: 24,
+    borderBottom: '1px solid #111', marginBottom: 24,
   },
   badge: {
     display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -218,8 +216,7 @@ const styles = {
   previewWrapper: { position: 'relative', borderRadius: 16, overflow: 'hidden' },
   previewImg: { width: '100%', borderRadius: 16, display: 'block', maxHeight: 360, objectFit: 'cover' },
   removeBtn: {
-    position: 'absolute', top: 12, right: 12,
-    width: 34, height: 34, borderRadius: '50%',
+    position: 'absolute', top: 12, right: 12, width: 34, height: 34, borderRadius: '50%',
     background: 'rgba(0,0,0,0.75)', color: '#f0f0f0',
     display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
     border: '1px solid #333',
