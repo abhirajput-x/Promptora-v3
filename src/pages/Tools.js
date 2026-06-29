@@ -42,56 +42,22 @@ export default function Tools() {
 
       const base64Data = base64Result.split(',')[1];
       const mediaType = image.type;
-      const apiKey = process.env.REACT_APP_CLAUDE_API_KEY;
 
-      if (!apiKey) {
-        toast.error('Claude API key missing!');
-        return;
-      }
-
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('/api/analyze', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-opus-4-5',
-          max_tokens: 1024,
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'image',
-                  source: {
-                    type: 'base64',
-                    media_type: mediaType,
-                    data: base64Data
-                  }
-                },
-                {
-                  type: 'text',
-                  text: 'Analyze this image and write a detailed AI art prompt to recreate it. Include style, lighting, colors, mood, composition, and subject details. Write only the prompt text, nothing else.'
-                }
-              ]
-            }
-          ]
-        })
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageData: base64Data, mediaType: mediaType })
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        const errMsg = data.error ? data.error.message : 'Unknown error';
-        toast.error('Error: ' + errMsg);
+        toast.error('Error: ' + (data.error || 'Unknown error'));
         return;
       }
 
-      if (data.content && data.content[0] && data.content[0].text) {
-        setPrompt(data.content[0].text);
+      if (data.prompt) {
+        setPrompt(data.prompt);
         setProgress(100);
         toast.success('Prompt generated!');
       } else {
