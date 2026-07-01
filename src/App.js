@@ -11,6 +11,7 @@ import Creators from './pages/Creators';
 import Login from './pages/Login';
 import Profile from './pages/Profile';
 import Upload from './pages/Upload';
+import AdminDashboard from './pages/AdminDashboard';
 import './index.css';
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/upload" element={<Upload />} />
+          <Route path="/admin-x7k9" element={<AdminDashboard />} />
         </Routes>
         <FloatingActions />
         <Toaster
@@ -39,9 +41,7 @@ export default function App() {
               borderRadius: 12,
               fontSize: 14,
             },
-            success: {
-              iconTheme: { primary: '#00E5FF', secondary: '#000' },
-            },
+            success: { iconTheme: { primary: '#00E5FF', secondary: '#000' } },
           }}
         />
       </BrowserRouter>
