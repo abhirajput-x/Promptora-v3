@@ -61,15 +61,31 @@ console.log(currentUser);
         .from('prompt-images')
         .getPublicUrl(fileName);
 
-      const { error: insertError } = await supabase.from('prompts').insert({
-        user_id: user.id,
-        title: title.trim(),
-        prompt_text: promptText.trim(),
-        model,
-        image_url: urlData.publicUrl,
-        status: 'pending',
-      });
+      const {
+  data: { user: currentUser },
+} = await supabase.auth.getUser();
 
+if (!currentUser) {
+  toast.error("No authenticated user found");
+  return;
+}
+
+const { error: insertError } = await supabase.from("prompts").insert({
+  user_id: currentUser.id,
+  title: title.trim(),
+  prompt_text: promptText.trim(),
+  model,
+  image_url: urlData.publicUrl,
+  status: "pending",
+});
+      console.log({
+  user_id: user.id,
+  title: title.trim(),
+  prompt_text: promptText.trim(),
+  model,
+  image_url: urlData.publicUrl,
+  status: 'pending',
+});
       if (insertError) throw insertError;
 
       toast.success('Prompt submitted! Pending review.');
