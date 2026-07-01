@@ -42,6 +42,11 @@ export default function Upload() {
     if (!promptText.trim()) return toast.error('Please add the prompt text');
 
     setSubmitting(true);
+    const {
+  data: { user: currentUser },
+} = await supabase.auth.getUser();
+
+console.log(currentUser);
     try {
       const fileExt = image.name.split('.').pop();
       const fileName = `${user.id}-${Date.now()}.${fileExt}`;
