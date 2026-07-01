@@ -9,6 +9,7 @@ const MODELS = ['Midjourney', 'DALL·E', 'Flux', 'ChatGPT', 'Stable Diffusion', 
 
 export default function Upload() {
   const { user } = useAuth();
+  console.log("useAuth user:", user);
   const navigate = useNavigate();
   const fileRef = useRef();
 
@@ -37,6 +38,13 @@ export default function Upload() {
   };
 
   const handleSubmit = async () => {
+    const {
+  data: { session },
+} = await supabase.auth.getSession();
+
+console.log("Session:", session);
+console.log("Session user:", session?.user);
+console.log("Upload user.id:", user?.id);
     const { data: { session } } = await supabase.auth.getSession();
 alert(JSON.stringify(session));
     if (!image) return toast.error('Please upload an image');
