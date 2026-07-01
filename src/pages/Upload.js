@@ -37,6 +37,8 @@ export default function Upload() {
   };
 
   const handleSubmit = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+alert(JSON.stringify(session));
     if (!image) return toast.error('Please upload an image');
     if (!title.trim()) return toast.error('Please add a title');
     if (!promptText.trim()) return toast.error('Please add the prompt text');
