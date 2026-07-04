@@ -1,0 +1,30 @@
+{
+  "_comment": "PLACEHOLDER FILE - Replace this with the real google-services.json downloaded from your Firebase project console (Project Settings > Your apps > Android app com.promptora.app) before building a release that uses Firebase (Push Notifications, Analytics, etc). This placeholder is intentionally NOT a valid Firebase config and the google-services Gradle plugin is only applied when a real file is present (see android/app/build.gradle).",
+  "project_info": {
+    "project_number": "000000000000",
+    "project_id": "promptora-placeholder",
+    "storage_bucket": "promptora-placeholder.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "android_client_info": {
+          "package_name": "com.promptora.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "REPLACE_WITH_REAL_FIREBASE_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
