@@ -20,8 +20,15 @@ jobs:
           node-version: 22
           cache: npm
 
+      - name: Fix npm version
+        run: npm install -g npm@10.8.2
+
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --prefer-offline --no-audit --fund=false
+        env:
+          NPM_CONFIG_FETCH_RETRIES: 5
+          NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: 20000
+          NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: 120000
 
       - name: Build Web
         run: npm run build
