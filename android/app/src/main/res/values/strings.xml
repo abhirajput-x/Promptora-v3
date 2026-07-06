@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">Promptora</string>
-    <string name="title_activity_main">Promptora</string>
-    <string name="package_name">com.promptora.app</string>
-    <string name="custom_url_scheme">com.promptora.app</string>
-</resources>
