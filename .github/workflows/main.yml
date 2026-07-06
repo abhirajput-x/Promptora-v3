@@ -24,14 +24,20 @@ jobs:
         run: npm install -g npm@10.8.2
 
       - name: Install Dependencies
-        run: npm install
         env:
+         NODE_ENV: development
+        run: |
+          npm install --include=dev 
+            env: 
           NPM_CONFIG_FETCH_RETRIES: 5
           NPM_CONFIG_FETCH_RETRY_MINTIMEOUT: 20000
           NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT: 120000
 
       - name: Build Web
-        run: npm run build
+        run: |
+          ls -la
+          ls node_modules/.bin
+          npx react-scripts build
 
       - name: Setup Java
         uses: actions/setup-java@v4
