@@ -1,8 +1,0 @@
-{
-  "appId": "com.promptora.app",
-  "appName": "Promptora",
-  "webDir": "build",
-  "server": {
-    "androidScheme": "https"
-  }
-}
