@@ -1,13 +1,29 @@
-import { useState } from 'react';
+cat > /home/claude/promptora/Promptora-v3-main/src/components/PromptDetail.js << 'ENDOFFILE'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { X, Copy, Check, Heart, Bookmark, Share2, ChevronRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../hooks/useAuth';
+import { useAuthModal } from '../context/AuthModalContext';
+import Comments from './Comments';
 import toast from 'react-hot-toast';
 
 export default function PromptDetail({ prompt, onClose }) {
-  
+  const { user } = useAuth();
+  const { requireAuth } = useAuthModal();
+
   const [copied, setCopied] = useState(false);
-  const [liked, setLiked] = useState(prompt.user_liked || false);
-  const [saved, setSaved] = useState(prompt.user_saved || false);
+  const [liked, setLiked] = useState(prompt?.user_liked || false);
+  const [saved, setSaved] = useState(prompt?.user_saved || false);
+  const [likesCount, setLikesCount] = useState(prompt?.likes_count || 0);
+  const [commentsCount, setCommentsCount] = useState(prompt?.comments_count || 0);
+
+  useEffect(() => {
+    setLiked(prompt?.user_liked || false);
+    setSaved(prompt?.user_saved || false);
+    setLikesCount(prompt?.likes_count || 0);
+    setCommentsCount(prompt?.comments_count || 0);
+  }, [prompt]);
 
   if (!prompt) return null;
 
@@ -25,6 +41,45 @@ export default function PromptDetail({ prompt, onClose }) {
     } catch {
       await navigator.clipboard.writeText(window.location.href);
       toast.success('Link copied!');
+    }
+  };
+
+  const handleLike = async () => {
+    if (!user) { requireAuth('Please sign in to like prompts.'); return; }
+    const next = !liked;
+    setLiked(next);
+    setLikesCount(c => (next ? c + 1 : Math.max(c - 1, 0)));
+    try {
+      if (next) {
+        const { error } = await supabase.from('likes').insert({ user_id: user.id, prompt_id: prompt.id });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('likes').delete().match({ user_id: user.id, prompt_id: prompt.id });
+        if (error) throw error;
+      }
+    } catch {
+      setLiked(!next);
+      setLikesCount(c => (next ? Math.max(c - 1, 0) : c + 1));
+      toast.error('Something went wrong');
+    }
+  };
+
+  const handleSave = async () => {
+    if (!user) { requireAuth('Please sign in to save prompts.'); return; }
+    const next = !saved;
+    setSaved(next);
+    try {
+      if (next) {
+        const { error } = await supabase.from('saves').insert({ user_id: user.id, prompt_id: prompt.id });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from('saves').delete().match({ user_id: user.id, prompt_id: prompt.id });
+        if (error) throw error;
+      }
+      toast.success(next ? 'Saved to library' : 'Removed from library');
+    } catch {
+      setSaved(!next);
+      toast.error('Something went wrong');
     }
   };
 
@@ -65,16 +120,16 @@ export default function PromptDetail({ prompt, onClose }) {
             ...styles.actionBtn,
             color: liked ? '#ff4d6d' : '#888',
             background: liked ? 'rgba(255,77,109,0.1)' : '#111',
-          }} onClick={() => setLiked(!liked)}>
+          }} onClick={handleLike}>
             <Heart size={16} fill={liked ? '#ff4d6d' : 'none'} />
-            {liked ? 'Liked' : 'Like'}
+            {liked ? 'Liked' : 'Like'}{likesCount > 0 ? ` · ${likesCount}` : ''}
           </button>
 
           <button style={{
             ...styles.actionBtn,
             color: saved ? '#00E5FF' : '#888',
             background: saved ? 'rgba(0,229,255,0.1)' : '#111',
-          }} onClick={() => setSaved(!saved)}>
+          }} onClick={handleSave}>
             <Bookmark size={16} fill={saved ? '#00E5FF' : 'none'} />
             {saved ? 'Saved' : 'Save'}
           </button>
@@ -87,7 +142,7 @@ export default function PromptDetail({ prompt, onClose }) {
 
         {/* Creator */}
         {prompt.creator && (
-          <div style={styles.creator}>
+          <Link to={`/creator/${prompt.user_id}`} onClick={onClose} style={styles.creator}>
             <img
               src={prompt.creator.avatar_url || `https://api.dicebear.com/7.x/initials/svg?seed=${prompt.creator.username}`}
               alt={prompt.creator.username}
@@ -98,8 +153,13 @@ export default function PromptDetail({ prompt, onClose }) {
               <div style={{ fontSize: 12, color: '#888' }}>Creator</div>
             </div>
             <ChevronRight size={16} color="#888" style={{ marginLeft: 'auto' }} />
-          </div>
+          </Link>
         )}
+
+        {/* Comments */}
+        <div style={styles.commentsWrap}>
+          <Comments promptId={prompt.id} onCountChange={setCommentsCount} />
+        </div>
       </div>
     </div>
   );
@@ -129,7 +189,10 @@ const styles = {
   creator: {
     display: 'flex', alignItems: 'center', gap: 12,
     padding: 14, background: '#0a0a0a', border: '1px solid #1e1e1e', borderRadius: 12,
-    cursor: 'pointer',
+    cursor: 'pointer', textDecoration: 'none', color: 'inherit', marginBottom: 16,
   },
   creatorAvatar: { width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' },
+  commentsWrap: { borderTop: '1px solid #1e1e1e', paddingTop: 16 },
 };
+ENDOFFILE
+echo "written"
