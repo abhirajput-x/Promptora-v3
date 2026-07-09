@@ -133,4 +133,3 @@ const styles = {
   },
   creatorAvatar: { width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' },
 };
-
