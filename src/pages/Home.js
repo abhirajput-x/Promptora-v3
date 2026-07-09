@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
+import { Zap, Upload, TrendingUp, Sparkles, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import PromptCard from '../components/PromptCard';
 import PromptDetail from '../components/PromptDetail';
@@ -60,7 +60,11 @@ export default function Home() {
           Thousands of curated prompts for Midjourney, ChatGPT, Flux & more
         </p>
         <div style={styles.heroCtas}>
-          <Link to="/explore" className="btn btn-primary">
+          <Link to="/upload" className="btn btn-primary">
+            <Upload size={16} />
+            Publish a Prompt
+          </Link>
+          <Link to="/explore" className="btn btn-outline">
             Explore All <ArrowRight size={15} />
           </Link>
         </div>
